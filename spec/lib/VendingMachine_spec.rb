@@ -49,13 +49,42 @@ describe VendingMachine do
       vm.total.should eq 1600
     end
   end
-  
-  context '釣り銭は合計金額を返して、内部合計金額を0にする' do
-    it '100円投入して、100円帰ってきて、内部の合計は0になる' do
-      vm.add 100
-      vm.payback.should eq 100
-      vm.total.should eq 0
-      vm.change.should eq 100
+  describe '釣り銭の確認' do
+    context '釣り銭は合計金額を返して、内部合計金額を0にする' do
+      it '100円投入して、100円帰ってきて、内部の合計は0になる' do
+        vm.add 100
+        vm.payback.should eq 100
+        vm.total.should eq 0
+        vm.change.should eq 100
+      end
+    end
+    context '現在の合計金額がジュースの値段以上のとき' do
+      it '釣り銭は投入金額からジュースの値段を引いた値段' do
+        #前提条件
+        initial_amount = vm.stock[:coke][:amount]
+        vm.add 500
+        
+        #購入
+        vm.purchase :coke
+        vm.payback
+
+        #結果
+        vm.change.should eq 380
+      end
+    end
+    context '現在の合計金額がジュースの値段未満のとき' do
+      it '釣り銭はそのまま' do
+        #前提条件
+        initial_amount = vm.stock[:coke][:amount]
+        vm.add 100
+        
+        #購入
+        vm.purchase :coke
+        vm.payback
+        
+        #結果
+        vm.change.should eq 100
+      end
     end
   end
   
@@ -81,6 +110,46 @@ describe VendingMachine do
     context '初期状態の時' do
       it '120円のコーラが5本ある' do
         vm.stock.should eq coke: {price: 120, amount: 5}
+      end
+    end
+  end
+  
+  describe '売上金を取得する' do
+    context '初期状態の時' do
+      it '売上が0円となる' do
+        vm.sale_amount.should eq 0
+      end
+    end
+  end
+  describe 'ジュースの購入' do
+    context '現在の合計金額がジュースの値段以上のとき' do
+      it 'ジュースの在庫を減らし、売上を増やす。また、合計金額を減らす。' do
+        #前提条件
+        initial_amount = vm.stock[:coke][:amount]
+        vm.add 500
+        
+        #購入
+        vm.purchase :coke
+        
+        #結果
+        vm.stock[:coke][:amount].should eq (initial_amount - 1)
+        vm.sale_amount.should eq vm.stock[:coke][:price]
+        vm.total.should eq (500 - vm.stock[:coke][:price])
+      end
+    end
+    context '現在の合計金額がジュースの値段未満のとき' do
+      it 'ジュースの在庫、売上はそのまま。合計金額も変化なし' do
+        #前提条件
+        initial_amount = vm.stock[:coke][:amount]
+        vm.add 100
+        
+        #購入
+        vm.purchase :coke
+        
+        #結果
+        vm.stock[:coke][:amount].should eq initial_amount
+        vm.sale_amount.should eq 0
+        vm.total.should eq 100
       end
     end
   end

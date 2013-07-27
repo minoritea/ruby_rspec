@@ -1,12 +1,11 @@
 class VendingMachine
-  attr_reader :total
-  attr_reader :change
-  attr_reader :stock
+  attr_reader :total, :change, :stock, :sale_amount
 
   def initialize
     @total = 0
     @change = 0
     @stock = {coke: {price: 120, amount: 5}}
+    @sale_amount = 0
   end
 
   def add n
@@ -25,5 +24,13 @@ class VendingMachine
     @change += @total
     @total = 0
     @change
+  end
+  
+  def purchase drink
+    if @stock[drink][:price] <= @total
+      @stock[drink][:amount] -= 1
+      @sale_amount += @stock[drink][:price]
+      @total -= @stock[drink][:price]
+    end
   end
 end
