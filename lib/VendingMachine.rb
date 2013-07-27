@@ -3,7 +3,12 @@ class VendingMachine
   def initialize
     @total = 0
   end
-  def add_10
-    @total += 10
+  def add n
+    @total += n
+  end
+  def payback
+    change = @total
+    @total = 0
+    change
   end
 end
