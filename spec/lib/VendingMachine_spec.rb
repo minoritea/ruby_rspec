@@ -4,6 +4,11 @@ require 'spec_helper'
 describe VendingMachine do
   let(:vm){ VendingMachine.new }
   #let(:yen10) {Money.new 10}
+  context '初期状態のテスト' do
+    it '何も投入しなければ合計0件' do
+      vm.total.should eq 0
+    end
+  end
   context 'コインを投入したときの合計値についてのテスト' do
     it '10円入れたら合計10円' do
       vm.add 10
